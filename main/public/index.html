@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+    <title>Job Openings!</title>
+  </head>
+  <body class="container">
+    <h1>Latest Node.js Jobs!</h1>
+    <div id="login"></div>
+    <div id="jobs" class="row row-cols-1 row-cols-md-3 g-4">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        function parseJwt( token ) {
+            return JSON.parse( atob( token.split( "." )[ 1 ] ) );
+        }
+
+        const urlParams = new URLSearchParams( location.hash.replace( "#", "" ) );
+        const idToken = urlParams.get( "id_token" );
+
+        if( idToken ) {
+            let decoded = parseJwt( idToken );
+            console.log( decoded );
+            $( "#login" ).html( `
+                <p>You are logged in, ${decoded.name}!</p>
+                ` );
+        }
+        else {
+            $( "#login" ).html( `
+                <a class="btn btn-secondary" href="https://nodejsonazure.b2clogin.com/nodejsonazure.onmicrosoft.com/oauth2/v2.0/authorize?p=B2C_1_NodeJSOnAzureSignUpSignIn&client_id=02c42bd8-b450-490b-9542-aadf3c281321&nonce=defaultNonce&redirect_uri=${location.origin}&scope=openid&response_type=id_token&prompt=login">Login</a>
+                ` );
+        }
+
+        fetch( "/jobs?text=node.js" )
+        .then( r => r.json() )
+        .then( jobs => {
+            jobs.forEach( job => {
+                $( "#jobs" ).append( `
+                    <div class="col">
+                    <div class="card">
+                      <img src="${job.company_logo}" class="card-img-top" alt="${job.company}">
+                      <div class="card-body">
+                        <h5 class="card-title">${job.company}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">${job.title}</h6>
+                        <p class="card-text">${job.description}</p>
+                        <a href="${job.url}" class="btn btn-primary">Apply</a>
+                      </div>
+                    </div>
+                    </div>` );
+            });
+        });
+    </script>
+  </body>
+</html>
